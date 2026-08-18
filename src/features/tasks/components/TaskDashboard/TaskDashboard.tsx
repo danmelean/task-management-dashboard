@@ -3,17 +3,26 @@
 import { useState } from "react";
 import { TaskInput } from "../TaskInput";
 import { TaskTable } from "../TaskTable";
+import { createTask } from "../../services/taskService";
+import type { Task } from "../../types/Task";
+import { TaskImport } from "../TaskImport/TaskImport";
 
 export function TaskDashboard() {
-  const [tasks, setTasks] = useState<string[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
-  function handleAddTask(title: string) {
-    setTasks((currentTasks) => [...currentTasks, title]);
+  async function handleAddTask(title: string): Promise<void> {
+    const task = await createTask({title});
+
+    setTasks((currentTasks) => [...currentTasks, task]);
   }
 
   return (
     <>
       <TaskInput onAddTask={handleAddTask} />
+
+      <div>
+        <TaskImport />
+      </div>
 
       <div>
         <h3 className="text-xl font-semibold mt-6 mb-2">Tasks:</h3>
@@ -24,6 +33,7 @@ export function TaskDashboard() {
           <TaskTable tasks={tasks} />
         )}
       </div>
+      
     </>
   );
 }

@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import { DuplicateTaskError } from "../../errors/DuplicateTaskError";
+import { UnexpectedApiError } from "../../errors/UnexpectedApiError";
 
 interface TaskInputProps {
-  onAddTask(title: string): void;
+  onAddTask(title: string): Promise<void>;
 }
 
 interface ValidationResult {
@@ -40,10 +42,12 @@ function validate(title: string): ValidationResult {
 export function TaskInput({ onAddTask }: TaskInputProps) {
   const [title, setTitle] = useState("");
   const [isTouched, setIsTouched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const validation = validate(title);
-  const error = isTouched ? validation.error : null;
+  const error = apiError ?? (isTouched ? validation.error : null);
 
   useEffect(() => {
     if (!successMessage) return;
@@ -60,6 +64,10 @@ export function TaskInput({ onAddTask }: TaskInputProps) {
   function handleTitleChange(e: ChangeEvent<HTMLInputElement>) {
     setTitle(e.target.value);
 
+    if (apiError) {
+      setApiError(null);
+    }
+
     if (!isTouched) {
       setIsTouched(true);
     }
@@ -69,16 +77,35 @@ export function TaskInput({ onAddTask }: TaskInputProps) {
     setIsTouched(true);
   }
 
-  function handleAddTask() {
+  async function handleAddTask() {
     setIsTouched(true);
-    const validation = validate(title);
     if (validation.error) return;
 
-    onAddTask(validation.value);
+    setApiError(null);
+    setSuccessMessage(null);
+    setIsLoading(true);
 
-    setTitle("");
-    setIsTouched(false);
-    setSuccessMessage(`Task "${validation.value}" added successfully!`);
+    try {
+      await onAddTask(validation.value);
+
+      setTitle("");
+      setIsTouched(false);
+      setSuccessMessage(`Task "${validation.value}" added successfully!`);
+    } catch (error) {
+      if (error instanceof DuplicateTaskError) {
+        setApiError(error.message);
+        return;
+      }
+
+      if (error instanceof UnexpectedApiError) {
+        setApiError(error.message);
+        return;
+      }
+
+      setApiError("An error occurred while adding the task");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -90,15 +117,15 @@ export function TaskInput({ onAddTask }: TaskInputProps) {
           onBlur={handleBlur}
           placeholder="What do you need to do?"
           className="flex-1"
+          disabled={isLoading}
         />
-        <Button onClick={handleAddTask}>Add Task</Button>
+        <Button onClick={handleAddTask} disabled={isLoading}>
+          {isLoading ? "Adding..." : "Add Task"}
+        </Button>
       </div>
-      {error ? (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
-      ) : (
-        successMessage && (
-          <p className="text-green-500 text-sm mt-1">{successMessage}</p>
-        )
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {successMessage && (
+        <p className="text-green-500 text-sm mt-1">{successMessage}</p>
       )}
     </>
   );
