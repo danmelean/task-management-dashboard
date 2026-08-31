@@ -3,40 +3,10 @@ import { Input } from "@/components/ui/Input";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { DuplicateTaskError } from "../../errors/DuplicateTaskError";
 import { UnexpectedApiError } from "../../errors/UnexpectedApiError";
+import { validateInputTask } from "@/features/utils/validateInputTask";
 
 interface TaskInputProps {
   onAddTask(title: string): Promise<void>;
-}
-
-interface ValidationResult {
-  value: string;
-  error: string | null;
-}
-
-function validate(title: string): ValidationResult {
-  const value = title.trim();
-  if (!value) {
-    return {
-      value,
-      error: "Title cannot be empty",
-    };
-  }
-
-  if (value.length > 20) {
-    return {
-      value,
-      error: "Title cannot exceed 20 characters",
-    };
-  }
-
-  if (value.length < 3) {
-    return {
-      value,
-      error: "Title must be at least 3 characters long",
-    };
-  }
-
-  return { value, error: null };
 }
 
 export function TaskInput({ onAddTask }: TaskInputProps) {
@@ -46,7 +16,7 @@ export function TaskInput({ onAddTask }: TaskInputProps) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const validation = validate(title);
+  const validation = validateInputTask(title);
   const error = apiError ?? (isTouched ? validation.error : null);
 
   useEffect(() => {
