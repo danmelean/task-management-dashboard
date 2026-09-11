@@ -1,13 +1,17 @@
 import Papa from "papaparse";
 
-import type { CreateTaskRequest } from "../tasks/types/CreateTaskRequest";
 import { validateInputTask } from "./validateInputTask";
 
 interface CsvTaskRow {
   title: string;
 }
 
-export function parseTaskCsv(content: string): CreateTaskRequest[] {
+export interface ParsedTask {
+  title: string;
+  error: string | null;
+}
+
+export function parseTaskCsv(content: string): ParsedTask[] {
   const result = Papa.parse<CsvTaskRow>(content, {
     header: true,
     skipEmptyLines: true,

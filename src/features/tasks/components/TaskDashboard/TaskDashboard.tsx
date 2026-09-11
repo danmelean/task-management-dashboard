@@ -11,7 +11,7 @@ export function TaskDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   async function handleAddTask(title: string): Promise<void> {
-    const task = await createTask({title, error: null});
+    const task = await createTask({title});
 
     setTasks((currentTasks) => [...currentTasks, task]);
   }
