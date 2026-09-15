@@ -20,22 +20,24 @@ export function TaskDashboard() {
   return (
     <Card className="w-full">
       <CardContent>
-        <div className="flex flex-col md:flex-row gap-8 items-center justify-start">
+        <div className="flex w-full flex-col gap-6 md:flex-row">
           <div className="w-full md:w-1/3">
             <TaskInput onAddTask={handleAddTask} />
-          </div>
-          <div className="w-full md:w-2/3">
             <TaskImport onAddTask={handleAddTask} />
           </div>
-        </div>
-        <div>
-          <h3 className="text-xl font-semibold mt-6 mb-2">Tasks:</h3>
+          <div className="w-full md:w-2/3">
+            <Card className="p-4 mb-4">
+              <CardContent>
+                <h3 className="text-xl font-semibold mb-2">Tasks:</h3>
 
-          {tasks.length === 0 ? (
-            <p className="text-gray-500">No tasks yet.</p>
-          ) : (
-            <TaskTable tasks={tasks} />
-          )}
+                {tasks.length === 0 ? (
+                  <p className="text-gray-500">No tasks yet.</p>
+                ) : (
+                  <TaskTable tasks={tasks} />
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </CardContent>
     </Card>
