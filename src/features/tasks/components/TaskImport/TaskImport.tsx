@@ -132,7 +132,7 @@ export function TaskImport({ onAddTask }: TaskInputProps) {
               ${isLoading ? "pointer-events-none opacity-50" : ""}
             `}
           >
-            <input {...getInputProps()} />
+            <input {...getInputProps({ "aria-label": "Upload CSV file" })} />
 
             {isDragActive ? (
               <>

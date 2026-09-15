@@ -12,7 +12,6 @@ export async function createTask(
 ): Promise<TaskResponse> {
   try {
     const response = await post<TaskResponse>("/tasks", request);
-    console.log("Task created successfully:", response);
     return response;
   } catch (error) {
     if (error instanceof ApiError) {
