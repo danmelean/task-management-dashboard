@@ -7,7 +7,7 @@ export function AppLayout({ children }: PropsWithChildren) {
     <>
       <Header />
       <Container>
-        <main className="py-8">{children}</main>
+        <main className="py-4">{children}</main>
       </Container>
     </>
   );
